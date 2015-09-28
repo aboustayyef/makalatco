@@ -1,0 +1,10 @@
+/vendor
+/node_modules
+
+Homestead.yaml
+.env
+
+resources/assets/bower/
+public/img/thumbs/originals
+public/img/post_images/
+__init__.py
