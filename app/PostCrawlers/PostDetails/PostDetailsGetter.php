@@ -45,10 +45,14 @@ class PostDetailsGetter
 
 		$crawler = new Crawler;
 		$htmlContent = @file_get_contents($this->url);
-		$crawler->addHtmlContent($htmlContent);
+		if ($htmlContent) {
+			var_dump($htmlContent);
+			$crawler->addHtmlContent($htmlContent);
 
-		$getterClassName = 'App\PostCrawlers\PostDetails\\' . $this->source->media_parent . 'DetailsGetter';
-		$getter = new $getterClassName($this->url, $crawler);
-		return $getter->getDetails();
+			$getterClassName = 'App\PostCrawlers\PostDetails\\' . $this->source->media_parent . 'DetailsGetter';
+			$getter = new $getterClassName($this->url, $crawler);
+			return $getter->getDetails();
+		}
+		return false;
 	}
 }

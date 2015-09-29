@@ -17,9 +17,6 @@ class MainProcessor extends _Processor
 
     		// get excerpt
 			(new ExcerptText($this->post))->process();
-
-    		// extract ratings
-    		(new GetRatings($this->post))->process();
     	}
 
 }

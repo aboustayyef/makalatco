@@ -56,11 +56,13 @@ class PostsGetter extends Command
         $sources = Source::all();
 
         foreach ($sources as $key => $source) {
-            try {
+            // try {
                 $this->getPostsFromSource($source->shorthand);
-            } catch (Exception $e) {
-                $this->error('There was a problem with source [ ' . $source->description . ' ]');
-            }
+            // } catch (Exception $e) {
+            //     $this->error('There was a problem with source [ ' . $source->description . ' ]');
+            //     $key++;
+            //     continue;
+            // }
         }
 
 
@@ -89,31 +91,30 @@ class PostsGetter extends Command
             $this->info('Getting details for link: ' . $link);
 
             $details = (new PostDetailsGetter($source, $link))->getDetails();
+            if ($details) {
+                if (!$source->hasPublished($details['url'])) {
+                    // save
+                    // queue image for processing
+                    // save the post
+                    $post = Post::create($details);
+                    
+                    // associate the post to a source
+                    $post->source()->associate($source)->save();
 
-            if (! $source->hasPublished($details['url'])) {
-                // save
-                // associate to channel
-                // queue image for processing
-                // save the post
-                $post = Post::create($details);
-                
-                // associate the post to a source
-                $post->source()->associate($source)->save();
+                    // extract and process images (if any);
+                    (new \App\ContentProcessors\ImageProcessors\MainProcessor($post))->process();
 
-                // associate the post to channel(s)
-                $post->channels()->sync($source->channels);
+                    // process text
+                    (new \App\ContentProcessors\TextProcessors\MainProcessor($post))->process();
 
-                // extract and process images (if any);
-                (new \App\ContentProcessors\ImageProcessors\MainProcessor($post))->process();
-
-                // process text
-                (new \App\ContentProcessors\TextProcessors\MainProcessor($post))->process();
-
-                } 
+                    } 
                 else 
                 {
                     $this->info('This post is already in the database');
                 }
+            } else {
+                $this->info('could not extract content from this url');
+            }
 
             // if Post::has($details), skip
             // otherwise, 
